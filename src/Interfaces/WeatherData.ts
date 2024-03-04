@@ -28,11 +28,11 @@ interface MinutelyWeatherData {
   precipitation: number;
 }
 
-//Same as CurrentWeatherData, too much duplicate
 interface Rain {
   //Fourtanetly JS allows us to name properties with string literals
   "1h": number;
 }
+//Same as CurrentWeatherData, too much duplicate
 interface HourlyWeatherData {
   dt: number;
   sunrise: number;
