@@ -1,36 +1,32 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import useFetch from "./hooks/useFetch";
 import "./App.css";
-import { WeatherData } from "./Interfaces/WeatherData";
+import LandingPage from "./Components/LandingPage";
 
 //TODO: Abstract the api code & find a way to be able to pass all of the data
 //fetched from the api into our components: This will be done with a Custom Hook.
 
 function App() {
-  //To be recorded in a field somewhere.
-  // const [userQuery, setUserQuery] = useState<string | undefined>(undefined);
+  // const [currentWeatherData, setCurrentWeatherData] = useState<
+  //   WeatherData | undefined
+  // >(undefined);
 
-  const [currentWeatherData, setCurrentWeatherData] = useState<
-    WeatherData | undefined
-  >(undefined);
-
-  const [data, isLoading] = useFetch("Montreal");
+  const [weatherData, cityData, isLoading] = useFetch("Manitoba"); //Only user input(for now)
 
   useEffect(() => {
-    if (data && !isLoading) {
-      setCurrentWeatherData(data);
+    if (weatherData && !isLoading) {
+      console.log("Fetch was successful");
     } else {
       console.log("no data fetched");
     }
 
     return () => {};
-  }, [data]);
+  }, [weatherData]);
 
-  //test values below:
+  //TODO: Weather data shall be passed onto components below.?? figure that out
   return (
-    <main className="main-app">
-      <h1>TS WA</h1>
-      {currentWeatherData && <h1>{currentWeatherData?.current.temp}</h1>}
+    <main className="app-main">
+      <LandingPage cityDetails={cityData} weatherInfo={weatherData} />
     </main>
   );
 }
