@@ -1,30 +1,26 @@
-import React, { useState, useEffect } from "react";
-import { fetchWeatherData } from "../services/weatherApi.ts";
-import { WeatherData } from "../Interfaces/WeatherData.ts";
-import { GeoLocation } from "../services/geoCodingApi.ts";
+import { useEffect, useState } from "react";
+import { fetchWeatherData, MatchesData } from "../services/weatherApi.ts";
 
 //TODO: Add error state to be rendered in the components in case there's an issue in the api call
 //TODO: Sketch Page design
 const useFetch = (
-  userInput: string
-): [WeatherData | undefined, GeoLocation | undefined, boolean] => {
-  const [data, setData] = useState<WeatherData | undefined>(undefined);
-  const [cityData, setCityData] = useState<GeoLocation>();
+  userInput: string,
+): [MatchesData | undefined, boolean] => {
+  const [weatherInfo, setWeatherInfo] = useState<MatchesData | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const { weatherData: res, geoData: cityData } = await fetchWeatherData(
-          userInput
+        const matchesData : MatchesData  = await fetchWeatherData(
+          userInput,
         );
 
-        if (!res) {
+        if (!matchesData) {
           throw new Error("Data fetched is undefined");
         } else {
-          setData(res);
-          setCityData(cityData);
+          setWeatherInfo(matchesData);
         }
       } catch (err) {
         console.error("Error in  -> " + err);
@@ -36,7 +32,7 @@ const useFetch = (
     fetchData();
   }, [userInput]);
 
-  return [data, cityData, isLoading];
+  return [weatherInfo, isLoading];
 };
 
 export default useFetch;

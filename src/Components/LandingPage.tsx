@@ -1,17 +1,15 @@
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import * as React from "react";
-import { GeoLocation } from "../services/geoCodingApi";
-import { WeatherData } from "../Interfaces/WeatherData";
+import { MatchesData } from "../services/weatherApi";
 import { useState } from "react";
 
 type LandingPageProps = {
-  cityDetails: GeoLocation | undefined;
-  weatherInfo: WeatherData | undefined;
+  matchesFound : MatchesData | undefined;
   setUserInput: React.Dispatch<React.SetStateAction<string>>; //setState
 };
 
 function LandingPage(
-  { cityDetails, weatherInfo, setUserInput }: LandingPageProps,
+  { matchesFound , setUserInput }: LandingPageProps,
 ) {
   const [value, setValue] = useState<string>("");
 
@@ -32,7 +30,7 @@ function LandingPage(
           display={"flex"}
           justifyContent={"center"}
         >
-          {cityDetails?.name} - {cityDetails?.state} - {cityDetails?.country}
+          {matchesFound?.geoData.name} - {matchesFound?.geoData.state} - {matchesFound?.geoData.country}
         </Typography>
 
         <Typography
@@ -41,8 +39,8 @@ function LandingPage(
           display={"flex"}
           justifyContent={"center"}
         >
-          Temp: {weatherInfo?.current.temp}° Feels like:{" "}
-          {weatherInfo?.current.feels_like}
+          Temp: {matchesFound?.weatherData.current.temp}° Feels like:{" "}
+          {matchesFound?.weatherData.current.feels_like}
         </Typography>
 
         <Box

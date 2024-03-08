@@ -41,14 +41,18 @@ const fetchCurrentLocation = (): Promise<{ lat: number; lon: number }> => {
   });
 };
 
-//FIXME: Refactor this function, since it looks messy???
+//returns : city details and weather information
+export interface MatchesData {
+  weatherData: WeatherData;
+  geoData: GeoLocation;
+}
 
 const fetchWeatherData = async (
   cityName: string,
-  //NOTE: 
+  //NOTE:
   //instead of returning weatherData: WeatherData; geoData: GeoLocation return [{weatherData: WeatherData : geoData}, ]
-  //This should be done in a map that combines both fields 
-): Promise<{ weatherData: WeatherData; geoData: GeoLocation }> => {
+  //This should be done in a map that combines both fields
+): Promise<MatchesData> => {
   console.log("Fetching with " + cityName);
 
   try {
@@ -65,11 +69,13 @@ const fetchWeatherData = async (
       const res: GeoLocation[] = await geoFetch(
         GEO_API_HEAD_REVERSE(coordinates.lat, coordinates.lon),
       );
-      //Note that we're fetching the first match from our search, this will be replaced later
-      data = res[0];
+      //Use an array
+      data  = res[0];
+      console.log(res);
     } else {
       const res: GeoLocation[] = await geoFetch(GEO_API_HEAD(cityName));
       data = res[0];
+      console.log(res);
     }
 
     //We need the data(coordinates) from the city name we called before to pinpoint & get information
@@ -82,5 +88,6 @@ const fetchWeatherData = async (
     return Promise.reject(err);
   }
 };
+
 
 export { fetchWeatherData };
