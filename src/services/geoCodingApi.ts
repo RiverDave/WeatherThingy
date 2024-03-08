@@ -1,4 +1,3 @@
-import constants from "./constants.ts";
 
 //😆
 //So we need to define the type of interface(obj) which defines the type of the data(schema?) that we get
@@ -20,15 +19,15 @@ interface GeoLocation {
 //found
 const geoFetch = async (prefix: string): Promise<GeoLocation[]> => {
   try {
-    const res = await fetch(prefix);
+    const res : Response = await fetch(prefix);
     const data: GeoLocation[] = await res.json();
-
     //In some cases despite there being no errors in the response, when one tries fetch a random name
     //the data retrieved comes in form of an array with length 0
     if (!res || data.length === 0) {
-      throw new Error("Data retrieved is undefined");
+      throw new Error("GEOCODING: Data retrieved is undefined");
     }
 
+    console.log("GeoLocation Api called");
     return data as GeoLocation[];
   } catch (err) {
     console.error(err);
@@ -36,8 +35,5 @@ const geoFetch = async (prefix: string): Promise<GeoLocation[]> => {
   }
 };
 
-const GEO_API_HEAD = (city: string, limit = 10): string =>
-  `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=${limit}&appid=${constants.API_KEY}`;
-
-export type { GeoLocation as GeoLocation };
-export { geoFetch, GEO_API_HEAD };
+export type { GeoLocation };
+export { geoFetch };

@@ -19,7 +19,6 @@ const useFetch = (
         const { weatherData: res, geoData: cityData } = await fetchWeatherData(
           userInput
         );
-        // const res: WeatherData = await fetchWeatherData(userInput);
 
         if (!res) {
           throw new Error("Data fetched is undefined");
@@ -34,9 +33,7 @@ const useFetch = (
       }
     };
 
-    if (userInput) {
-      fetchData();
-    }
+    fetchData();
   }, [userInput]);
 
   return [data, cityData, isLoading];
