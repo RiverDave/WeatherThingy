@@ -8,13 +8,23 @@ function App() {
   //   WeatherData | undefined
   // >(undefined);
 
-  const [userInput, setUserInput] = React.useState<string>(""); //User input for city name
-  const [weatherInfo, isLoading] = useFetch(userInput); //Only user input(for now), if empty -> use current location
+  const [userInput, setUserInput] = React.useState<string>("New York"); //User input for city name
+  const [weatherInfo, isLoading] = useFetch(userInput); //Array of [weatherData, cityDetails]
 
   useEffect(() => {
     if (weatherInfo && !isLoading) {
     } else {
       console.log("no data fetched");
+    }
+
+    //NOTE: For now its returning the city name correctly but not the temp
+    if (weatherInfo) {
+      weatherInfo.forEach((element) => {
+        if (element) {
+          console.log('city name: ' + element.geoData?.name + 'Country: ' + element.geoData?.country);
+          console.log('city temp: ' + JSON.stringify(element.weatherData?.current.temp));
+        }
+      });
     }
 
     return () => {};

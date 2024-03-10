@@ -4,12 +4,12 @@ import { MatchesData } from "../services/weatherApi";
 import { useState } from "react";
 
 type LandingPageProps = {
-  matchesFound : MatchesData | undefined;
+  matchesFound: MatchesData[] | undefined;
   setUserInput: React.Dispatch<React.SetStateAction<string>>; //setState
 };
 
 function LandingPage(
-  { matchesFound , setUserInput }: LandingPageProps,
+  { matchesFound, setUserInput }: LandingPageProps,
 ) {
   const [value, setValue] = useState<string>("");
 
@@ -21,27 +21,11 @@ function LandingPage(
     setUserInput(value);
   };
 
+  
   return (
     <Container maxWidth="lg">
       <Box>
-        <Typography
-          variant="h2"
-          alignContent={"center"}
-          display={"flex"}
-          justifyContent={"center"}
-        >
-          {matchesFound?.geoData.name} - {matchesFound?.geoData.state} - {matchesFound?.geoData.country}
-        </Typography>
 
-        <Typography
-          variant="h3"
-          alignContent={"center"}
-          display={"flex"}
-          justifyContent={"center"}
-        >
-          Temp: {matchesFound?.weatherData.current.temp}° Feels like:{" "}
-          {matchesFound?.weatherData.current.feels_like}
-        </Typography>
 
         <Box
           marginTop={"30vh"}
@@ -62,6 +46,37 @@ function LandingPage(
           />
           <Button onClick={handleClick}>Search</Button>
         </Box>
+
+        {matchesFound && matchesFound.map((match) => {
+          return (
+            <Box flexDirection={"row"}>
+              <Typography
+                variant="h2"
+                alignContent={"center"}
+                display={"flex"}
+                justifyContent={"center"}
+              >
+                {match && match.geoData?.name} - {match && match.geoData?.state}
+                {" "}
+                - {match && match.geoData?.country}
+              </Typography>
+
+
+
+              <Typography
+                variant="h2"
+                alignContent={"center"}
+                display={"flex"}
+                justifyContent={"center"}
+              >
+                {match && match.weatherData?.current.temp}° - {match && match.weatherData?.current.feels_like}
+              </Typography>
+
+            </Box>
+          );
+        })}
+
+
       </Box>
     </Container>
   );

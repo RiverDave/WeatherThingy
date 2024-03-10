@@ -43,16 +43,13 @@ const fetchCurrentLocation = (): Promise<{ lat: number; lon: number }> => {
 
 //returns : city details and weather information
 export interface MatchesData {
-  weatherData: WeatherData;
-  geoData: GeoLocation;
+  weatherData: WeatherData | null;
+  geoData: GeoLocation | null;
 }
 
 const fetchWeatherData = async (
   cityName: string,
-  //NOTE:
-  //instead of returning weatherData: WeatherData; geoData: GeoLocation return [{weatherData: WeatherData : geoData}, ]
-  //This should be done in a map that combines both fields
-): Promise<MatchesData> => {
+): Promise<MatchesData[]> => {
   console.log("Fetching with " + cityName);
 
   try {
@@ -61,7 +58,8 @@ const fetchWeatherData = async (
     //2. Fetching current location coordenates -> Getting cityDetails through the reverse header defined above
 
     let coordinates: { lat: number; lon: number };
-    let data: GeoLocation;
+    let data: MatchesData[] | null = [];
+
     if (!cityName) {
       const currPos = await fetchCurrentLocation();
       coordinates = { lat: currPos.lat, lon: currPos.lon };
@@ -69,25 +67,60 @@ const fetchWeatherData = async (
       const res: GeoLocation[] = await geoFetch(
         GEO_API_HEAD_REVERSE(coordinates.lat, coordinates.lon),
       );
-      //Use an array
-      data  = res[0];
-      console.log(res);
+
+      data = await Promise.all(res.map(async (element) => {
+        if (element) {
+          const weatherResponse = await fetch(
+            WD_API_HEAD(element.lat, element.lon),
+          );
+
+          const weatherData: WeatherData = await weatherResponse.json();
+
+          const newElement: MatchesData = {
+            weatherData: weatherData,
+            geoData: element,
+          };
+
+          return newElement;
+        }
+
+        //null obj
+        return {
+          weatherData: null,
+          geoData: null,
+        };
+      }));
     } else {
+
       const res: GeoLocation[] = await geoFetch(GEO_API_HEAD(cityName));
-      data = res[0];
-      console.log(res);
+      data = await Promise.all(res.map(async (element) => {
+        if (element) {
+          const weatherResponse = await fetch(
+            WD_API_HEAD(element.lat, element.lon),
+          );
+          const weatherData: WeatherData = await weatherResponse.json();
+
+          const newElement: MatchesData = {
+            weatherData: weatherData,
+            geoData: element,
+          };
+
+          return newElement;
+        }
+
+        return {
+          weatherData: null,
+          geoData: null,
+        };
+      }));
     }
 
-    //We need the data(coordinates) from the city name we called before to pinpoint & get information
-    //About that location:
-    const weatherResponse = await fetch(WD_API_HEAD(data.lat, data.lon));
-    const weatherData: WeatherData = await weatherResponse.json();
-    return { weatherData: weatherData, geoData: data };
+    //this logs undefined
+    return data as MatchesData[];
   } catch (err) {
     console.error("Rejection -> " + err);
     return Promise.reject(err);
   }
 };
-
 
 export { fetchWeatherData };
