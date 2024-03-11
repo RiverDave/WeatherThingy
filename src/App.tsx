@@ -8,7 +8,7 @@ function App() {
   //   WeatherData | undefined
   // >(undefined);
 
-  const [userInput, setUserInput] = React.useState<string>("New York"); //User input for city name
+  const [userInput, setUserInput] = React.useState<string>(""); //User input for city name
   const [weatherInfo, isLoading] = useFetch(userInput); //Array of [weatherData, cityDetails]
 
   useEffect(() => {
@@ -23,6 +23,7 @@ function App() {
         if (element) {
           console.log('city name: ' + element.geoData?.name + 'Country: ' + element.geoData?.country);
           console.log('city temp: ' + JSON.stringify(element.weatherData?.current.temp));
+          console.log('render key: ' + element.id);
         }
       });
     }

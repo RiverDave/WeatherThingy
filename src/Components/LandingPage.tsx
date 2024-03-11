@@ -1,4 +1,12 @@
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Container,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import * as React from "react";
 import { MatchesData } from "../services/weatherApi";
 import { useState } from "react";
@@ -13,72 +21,65 @@ function LandingPage(
 ) {
   const [value, setValue] = useState<string>("");
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(event.target.value);
+  //Api changes(functor callback in this case) will execute once in the span set below (ms)
+  const debounce = (func: Function, delay: number) => {
+    let timer: ReturnType<typeof setTimeout>;
+    return function (this: any, ...args: any[]) {
+      clearTimeout(timer);
+      timer = setTimeout(() => func.apply(this, args), delay);
+    };
   };
+
+  const handleInputChange = (newValue: string) => {
+    setValue(newValue);
+    setUserInput(newValue);
+  };
+
+
+  const debounceHandleInputChange = debounce(handleInputChange, 900);
 
   const handleClick = () => {
-    setUserInput(value);
+    console.log("Hello wolrd");
   };
 
-  
   return (
-    <Container maxWidth="lg">
-      <Box>
+    <Stack maxWidth={"lg"}>
+      <Autocomplete
+        id="weather_match_demo"
+        options={matchesFound || []}
+        getOptionLabel={(match) => match.geoData?.name || ""}
+        isOptionEqualToValue={(option, value) =>
+          option.geoData?.name === value.geoData?.name ||
+          (option.geoData?.lon === value.geoData?.lon &&
+            option.geoData?.lat === value.geoData?.lat)}
 
+        onChange={(event, newValue) => setValue(newValue?.geoData?.name || "")}
+        renderOption={(props, matchesFound) => (
 
-        <Box
-          marginTop={"30vh"}
-          display={"flex"}
-          alignContent={"center"}
-          justifyContent={"center"}
-          component={"form"}
-          noValidate
-          autoComplete="off"
-        >
+          <Box component="li" {...props} key={matchesFound.id} onClick={handleClick}>
+            <Typography variant="h3">
+              {matchesFound.geoData?.name}
+            </Typography>
+
+            <Typography variant="body1">
+              {matchesFound.geoData?.state} - {matchesFound.geoData?.country}
+            </Typography>
+
+          </Box>
+        )}
+        renderInput={(params) => (
           <TextField
-            className="land-input"
-            id="outlined-basic"
-            label="filled"
-            variant="filled"
+            {...params}
+            label="City"
+            variant="outlined"
+            onChange={(e) => debounceHandleInputChange(e.target.value)}
             value={value}
-            onChange={handleChange}
+            onClick={handleClick}
           />
-          <Button onClick={handleClick}>Search</Button>
-        </Box>
-
-        {matchesFound && matchesFound.map((match) => {
-          return (
-            <Box flexDirection={"row"}>
-              <Typography
-                variant="h2"
-                alignContent={"center"}
-                display={"flex"}
-                justifyContent={"center"}
-              >
-                {match && match.geoData?.name} - {match && match.geoData?.state}
-                {" "}
-                - {match && match.geoData?.country}
-              </Typography>
-
-
-
-              <Typography
-                variant="h2"
-                alignContent={"center"}
-                display={"flex"}
-                justifyContent={"center"}
-              >
-                {match && match.weatherData?.current.temp}° - {match && match.weatherData?.current.feels_like}
-              </Typography>
-
-            </Box>
-          );
-        })}
-
-
-      </Box>
-    </Container>
+        )}
+        // noOptionsText={"NO MATCHES FOUND!"}
+      />
+    </Stack>
   );
 }
 

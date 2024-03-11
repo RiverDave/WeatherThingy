@@ -5,7 +5,7 @@ import { geoFetch } from "./geoCodingApi.ts";
 import { WeatherData } from "../Interfaces/WeatherData.ts";
 import constants from "./constants.ts";
 
-const GEO_API_HEAD = (city: string, limit = 10): string =>
+const GEO_API_HEAD = (city: string, limit = 3): string =>
   `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=${limit}&appid=${constants.API_KEY}`;
 const WD_API_HEAD = (lat: number, lon: number, units = "metric"): string =>
   `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&units=${units}&appid=${constants.API_KEY}`;
@@ -45,6 +45,8 @@ const fetchCurrentLocation = (): Promise<{ lat: number; lon: number }> => {
 export interface MatchesData {
   weatherData: WeatherData | null;
   geoData: GeoLocation | null;
+  //Mainly used to differentiate it in the rendering process
+  id: number | null;
 }
 
 const fetchWeatherData = async (
@@ -68,7 +70,7 @@ const fetchWeatherData = async (
         GEO_API_HEAD_REVERSE(coordinates.lat, coordinates.lon),
       );
 
-      data = await Promise.all(res.map(async (element) => {
+      data = await Promise.all(res.map(async (element, index) => {
         if (element) {
           const weatherResponse = await fetch(
             WD_API_HEAD(element.lat, element.lon),
@@ -79,6 +81,8 @@ const fetchWeatherData = async (
           const newElement: MatchesData = {
             weatherData: weatherData,
             geoData: element,
+            id: index,
+            
           };
 
           return newElement;
@@ -88,12 +92,13 @@ const fetchWeatherData = async (
         return {
           weatherData: null,
           geoData: null,
+          id: null,
         };
       }));
     } else {
 
       const res: GeoLocation[] = await geoFetch(GEO_API_HEAD(cityName));
-      data = await Promise.all(res.map(async (element) => {
+      data = await Promise.all(res.map(async (element, index) => {
         if (element) {
           const weatherResponse = await fetch(
             WD_API_HEAD(element.lat, element.lon),
@@ -103,6 +108,7 @@ const fetchWeatherData = async (
           const newElement: MatchesData = {
             weatherData: weatherData,
             geoData: element,
+            id: index,
           };
 
           return newElement;
@@ -111,6 +117,7 @@ const fetchWeatherData = async (
         return {
           weatherData: null,
           geoData: null,
+          id: null,
         };
       }));
     }
