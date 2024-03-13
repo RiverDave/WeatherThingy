@@ -16,10 +16,11 @@ type LandingPageProps = {
   setUserInput: React.Dispatch<React.SetStateAction<string>>; //setState
 };
 
-function LandingPage(
-  { matchesFound, setUserInput }: LandingPageProps,
-) {
-  const [value, setValue] = useState<string>("");
+function LandingPage({ matchesFound, setUserInput }: LandingPageProps) {
+  const [textField, setTextField] = useState<string>("");
+  const [selectedOption, setSelectedOption] = useState<MatchesData | null>(
+    null
+  );
 
   //Api changes(functor callback in this case) will execute once in the span set below (ms)
   const debounce = (func: Function, delay: number) => {
@@ -31,16 +32,11 @@ function LandingPage(
   };
 
   const handleInputChange = (newValue: string) => {
-    setValue(newValue);
+    setTextField(newValue);
     setUserInput(newValue);
   };
 
-
   const debounceHandleInputChange = debounce(handleInputChange, 900);
-
-  const handleClick = () => {
-    console.log("Hello wolrd");
-  };
 
   return (
     <Stack maxWidth={"lg"}>
@@ -48,23 +44,24 @@ function LandingPage(
         id="weather_match_demo"
         options={matchesFound || []}
         getOptionLabel={(match) => match.geoData?.name || ""}
-        isOptionEqualToValue={(option, value) =>
-          option.geoData?.name === value.geoData?.name ||
-          (option.geoData?.lon === value.geoData?.lon &&
-            option.geoData?.lat === value.geoData?.lat)}
-
-        onChange={(event, newValue) => setValue(newValue?.geoData?.name || "")}
+        isOptionEqualToValue={
+          (option, value) => option.geoData?.name === value.geoData?.name
+          //TODO: Implement search by coordinate | zip code?
+          // ||
+          // (option.geoData?.lon === value.geoData?.lon &&
+          //   option.geoData?.lat === value.geoData?.lat)
+        }
+        onChange={(event, newValue) => {
+          //New value type inferred from options
+          setTextField(newValue?.geoData?.name || "");
+          setSelectedOption(newValue);
+        }}
         renderOption={(props, matchesFound) => (
-
-          <Box component="li" {...props} key={matchesFound.id} onClick={handleClick}>
-            <Typography variant="h3">
-              {matchesFound.geoData?.name}
-            </Typography>
-
+          <Box component="li" {...props} key={matchesFound.id}>
+            <Typography variant="h3">{matchesFound.geoData?.name}</Typography>
             <Typography variant="body1">
               {matchesFound.geoData?.state} - {matchesFound.geoData?.country}
             </Typography>
-
           </Box>
         )}
         renderInput={(params) => (
@@ -72,13 +69,26 @@ function LandingPage(
             {...params}
             label="City"
             variant="outlined"
-            onChange={(e) => debounceHandleInputChange(e.target.value)}
-            value={value}
-            onClick={handleClick}
+            onChange={(e) => {
+              debounceHandleInputChange(e.target.value);
+            }}
+            value={selectedOption?.weatherData}
           />
         )}
         // noOptionsText={"NO MATCHES FOUND!"}
       />
+
+      <Box
+        display={"flex"}
+        marginTop={"100px"}
+        alignContent={"center"}
+        justifyContent={"center"}
+      >
+        <h1>
+          {selectedOption && selectedOption.geoData?.name} -{" "}
+          {selectedOption && selectedOption.weatherData?.current.temp}
+        </h1>
+      </Box>
     </Stack>
   );
 }
