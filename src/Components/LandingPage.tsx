@@ -21,6 +21,7 @@ function LandingPage({ matchesFound, setUserInput }: LandingPageProps) {
   const [selectedOption, setSelectedOption] = useState<MatchesData | null>(
     null
   );
+  const [touchedField, setTouchedField] = useState<boolean>(false);
 
   //Api changes(functor callback in this case) will execute once in the span set below (ms)
   const debounce = (func: Function, delay: number) => {
@@ -53,6 +54,7 @@ function LandingPage({ matchesFound, setUserInput }: LandingPageProps) {
         }
         onChange={(event, newValue) => {
           //New value type inferred from options
+          setTouchedField(true);
           setTextField(newValue?.geoData?.name || "");
           setSelectedOption(newValue);
         }}
@@ -85,7 +87,27 @@ function LandingPage({ matchesFound, setUserInput }: LandingPageProps) {
         justifyContent={"center"}
       >
         <h1>
-          {selectedOption && selectedOption.geoData?.name} -{" "}
+          {!touchedField &&
+            !selectedOption &&
+            matchesFound &&
+            matchesFound?.length === 1 && (
+              <>
+                <Box
+                  display={"flex"}
+                  flexDirection={"column"}
+                  justifyContent={"center"}
+                  alignItems={"center"}
+                >
+                  <Box>
+                    {matchesFound[0].geoData?.name} -{" "}
+                    {matchesFound[0].geoData?.state}{" "}
+                    {matchesFound[0].geoData?.country}
+                  </Box>
+                  <Box>{matchesFound[0].weatherData?.current.temp} </Box>
+                </Box>
+              </>
+            )}
+          {selectedOption && selectedOption.geoData?.name}
           {selectedOption && selectedOption.weatherData?.current.temp}
         </h1>
       </Box>
